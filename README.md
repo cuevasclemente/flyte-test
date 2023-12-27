@@ -11,7 +11,14 @@ We recommend using a git repository to version this project, so that you can
 use the git sha to version your Flyte workflows.
 
 ## How to recreate my testing environment
+Create a virtual environment (I'm using python 3.11.7).
 
-Use the makefile to `make bootstrap` after you have installed requirements from requirements.txt and flytectl (and other flyte requirements). 
+Install requirements in the virtual environment.
 
-I'm using python 3.11.7
+Use the makefile to `make bootstrap` after you have installed requirements from requirements.txt and for flyte.
+
+Either:
+    run `python workflows/test_dynamic_workflow.py`
+    OR
+    run `pyflyte register --image localhost:30000/workflows:0.1 workflows`, 
+       then run the `workflows.test_dynamic_workflow.dynamic_task_wise_paginate_through_filesystem` workflow from Flyte 
