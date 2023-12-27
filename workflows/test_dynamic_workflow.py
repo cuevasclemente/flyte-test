@@ -50,9 +50,9 @@ def fill_filesystem(internal: bool = True):
 
 
 @task(requests=Resources(cpu='2', mem='1Gi'))
-def paginate_bucket(bucket_name: str) -> (list[str], list[str]):
+def paginate_bucket(bucket_name: str, internal: bool = True) -> (list[str], list[str]):
     logging.debug(f"Paginating bucket {bucket_name}")
-    minio_client = get_minio_client()
+    minio_client = get_minio_client(internal=internal)
     objects = set()
     directories = set()
     bucket_objects = minio_client.list_objects(bucket_name)
