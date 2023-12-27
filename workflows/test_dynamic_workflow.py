@@ -121,7 +121,7 @@ def task_wise_paginate_through_filesystem(internal: bool = True) -> list[str]:
             subdirectories, objects =paginate_directory(bucket_name=bucket_name, directory=directory, internal=internal)
             for o in objects:
                 object_paths.add(o)
-    .debug("All object paths listed")
+    logger.debug("All object paths listed")
     return list(set(object_paths))
 
 @workflow
