@@ -103,23 +103,22 @@ def task_wise_paginate_through_filesystem(internal: bool = True) -> list[str]:
 
     Returns a set of every object in the bucket without recursively exploring the bucket in a single step
     """
-    minio_client = get_minio_client()
     logging.debug("Filling filesystem with data")
-    fill_filesystem()
+    fill_filesystem(internal=internal)
     logging.debug("Done filling filesystem")
     object_paths = set()
     # this is defined in tests, there are other buckets that get used by 
     # flyte, so let's just use the one we create
     bucket_name = "big-bucket"
     logger.debug("going into paginate bucket")
-    directories, objects = paginate_bucket(bucket_name=bucket_name)
+    directories, objects = paginate_bucket(internal=internal, bucket_name=bucket_name)
     for o in objects:
         object_paths.add(o)
     for directory in directories:
-        subdirectories, objects = map_task(paginate_directory)(bucket_name=bucket_name, directory=directory)
+        subdirectories, objects = paginate_directory(bucket_name=bucket_name, directory=directory, internal=internal)
         object_paths.update(set(objects))
         while subdirectories:
-            subdirectories, objects = map_task(paginate_directory)(bucket_name=bucket_name, directory=directory)
+            subdirectories, objects =paginate_directory(bucket_name=bucket_name, directory=directory, internal=internal)
             for o in objects:
                 object_paths.add(o)
     logging.debug("All object paths listed")
@@ -133,6 +132,7 @@ def dynamic_task_wise_paginate_through_filesystem(internal: bool = True) -> List
 if __name__ == '__main__':
     standard_scale_launch_plan = LaunchPlan.get_or_create(
         dynamic_task_wise_paginate_through_filesystem,
-        name="paginatge_through_fs",
+        name="paginate_through_fs",
+        default_inputs={"internal": False}
     )
     standard_scale_launch_plan(internal=False)
