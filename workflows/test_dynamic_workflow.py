@@ -51,7 +51,7 @@ def fill_filesystem(internal: bool = True):
 
 @task(requests=Resources(cpu='2', mem='1Gi'))
 def paginate_bucket(bucket_name: str, internal: bool = True) -> (list[str], list[str]):
-    logging.debug(f"Paginating bucket {bucket_name}")
+    logger.debug(f"Paginating bucket {bucket_name}")
     minio_client = get_minio_client(internal=internal)
     objects = set()
     directories = set()
@@ -61,26 +61,26 @@ def paginate_bucket(bucket_name: str, internal: bool = True) -> (list[str], list
             directories.add(o.object_name)
         else:
             objects.add(o.object_name)
-    logging.debug(f"{len(directories) + len(objects)} objects in bucket")
-    logging.debug(f"Finished paginating bucket {bucket_name}")
+    logger.debug(f"{len(directories) + len(objects)} objects in bucket")
+    logger.debug(f"Finished paginating bucket {bucket_name}")
     new_objects = list(objects)
     new_directories = list(directories)
     return (new_directories, new_objects)
 
 @task(requests=Resources(cpu='2', mem='1Gi'))
 def paginate_directory(bucket_name: str, directory: str, internal: bool = True) -> (list[str], list[str]):
-    logging.debug(f"Paginating directory {directory}")
+    logger.debug(f"Paginating directory {directory}")
     minio_client = get_minio_client(internal=internal)
     objects = set()
     subpaths = set()
     path_objects = minio_client.list_objects(bucket_name, prefix=directory)
-    logging.debug(f"{len(path_objects)} objects in directory")
+    logger.debug(f"{len(path_objects)} objects in directory")
     for o in path_objects:
         if o.is_dir():
             subpaths.add(o.object_name)
         else:
             objects.add(o.object_name)
-    logging.debug(f"Finished paginating directory {directory}")
+    logger.debug(f"Finished paginating directory {directory}")
     return (list(subpaths), list(objects))
 
     
@@ -103,9 +103,9 @@ def task_wise_paginate_through_filesystem(internal: bool = True) -> list[str]:
 
     Returns a set of every object in the bucket without recursively exploring the bucket in a single step
     """
-    logging.debug("Filling filesystem with data")
+    logger.debug("Filling filesystem with data")
     fill_filesystem(internal=internal)
-    logging.debug("Done filling filesystem")
+    logger.debug("Done filling filesystem")
     object_paths = set()
     # this is defined in tests, there are other buckets that get used by 
     # flyte, so let's just use the one we create
@@ -121,7 +121,7 @@ def task_wise_paginate_through_filesystem(internal: bool = True) -> list[str]:
             subdirectories, objects =paginate_directory(bucket_name=bucket_name, directory=directory, internal=internal)
             for o in objects:
                 object_paths.add(o)
-    logging.debug("All object paths listed")
+    .debug("All object paths listed")
     return list(set(object_paths))
 
 @workflow
